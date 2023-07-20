@@ -20,7 +20,7 @@ export class Service {
         try {
             return await this.databases.listDocuments<ThreadPost.ThreadDocument>(
                 conf.appwriteDatabaseId,
-                conf.appwriteCollectoinId,
+                conf.appwriteCollectoinPostId,
                 queries
             );
         } catch (error) {
@@ -31,11 +31,9 @@ export class Service {
 
     async getThreadPost(id: string) {
         try {
-            return await this.databases.getDocument<ThreadPost.ThreadDocument>(
-                conf.appwriteDatabaseId,
-                conf.appwriteCollectoinId,
-                id
-            );
+            return await this.axios.get<ThreadPost.ThreadWithCommentDocument | null>("/post", {
+                params: { id },
+            });
         } catch (error) {
             console.log("Appwrite service :: getThreadPost() :: " + error);
             return null;
@@ -58,11 +56,11 @@ export class Service {
         return null;
     }
 
-    async createThreadPost(post: ThreadPost.Thread) {
+    async createThreadPost(post: ThreadPost.BaseThread) {
         try {
             return await this.databases.createDocument<ThreadPost.ThreadDocument>(
                 conf.appwriteDatabaseId,
-                conf.appwriteCollectoinId,
+                conf.appwriteCollectoinPostId,
                 ID.unique(),
                 post
             );
@@ -72,11 +70,11 @@ export class Service {
         }
     }
 
-    async updateThreadPost(postId: string, post: Partial<ThreadPost.Thread>) {
+    async updateThreadPost(postId: string, post: Partial<ThreadPost.ThreadWithoutComment>) {
         try {
             return await this.databases.updateDocument<ThreadPost.ThreadDocument>(
                 conf.appwriteDatabaseId,
-                conf.appwriteCollectoinId,
+                conf.appwriteCollectoinPostId,
                 postId,
                 post
             );
@@ -88,7 +86,7 @@ export class Service {
 
     async deleteThreadPost(id: string) {
         try {
-            await this.databases.deleteDocument(conf.appwriteDatabaseId, conf.appwriteCollectoinId, id);
+            await this.databases.deleteDocument(conf.appwriteDatabaseId, conf.appwriteCollectoinPostId, id);
             return true;
         } catch (error) {
             console.log("Appwrite service :: deleteThreadPost() :: " + error);
@@ -98,8 +96,10 @@ export class Service {
 
     async toggleLike(postId: string, userId: string) {
         try {
-            const post = await this.getThreadPost(postId);
-            if (!post) throw new Error("Invalid Post Id");
+            const res = await this.getThreadPost(postId);
+            if (!res || !res.data) throw new Error("Invalid Post Id");
+
+            const { data: post } = res.data;
 
             if (post.likes.includes(userId)) {
                 const index = post.likes.indexOf(userId);
@@ -108,8 +108,7 @@ export class Service {
                 post.likes.push(userId);
             }
 
-            const newPost: ThreadPost.Thread = {
-                name: post.name,
+            const newPost: ThreadPost.ThreadWithoutComment = {
                 authorId: post.authorId,
                 message: post.message,
                 attachment: post.attachment,
@@ -126,15 +125,16 @@ export class Service {
 
     async view(postId: string, userId: string) {
         try {
-            const post = await this.getThreadPost(postId);
-            if (!post) throw new Error("Invalid Post Id");
+            const res = await this.getThreadPost(postId);
+            if (!res || !res.data) throw new Error("Invalid Post Id");
+
+            const { data: post } = res.data;
 
             if (!post.views.includes(userId)) {
                 post.views.push(userId);
             }
 
-            const newPost: ThreadPost.Thread = {
-                name: post.name,
+            const newPost: ThreadPost.ThreadWithoutComment = {
                 authorId: post.authorId,
                 message: post.message,
                 attachment: post.attachment,

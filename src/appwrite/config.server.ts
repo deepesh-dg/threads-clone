@@ -22,24 +22,45 @@ export class Service {
         return null;
     }
 
-    async getThreadPost(id: string) {
+    async getThreadPost(id: string): Promise<ThreadPost.ThreadWithCommentDocument | null> {
         try {
-            return await this.databases.getDocument<ThreadPost.ThreadDocument>(
+            const post = await this.databases.getDocument<ThreadPost.ThreadDocument>(
                 conf.appwriteDatabaseId,
-                conf.appwriteCollectoinId,
+                conf.appwriteCollectoinPostId,
                 id
             );
+
+            const promises: Promise<ThreadPost.CommentDocument>[] = [];
+
+            post.comments.forEach((commentId) =>
+                promises.push(
+                    this.databases.getDocument<ThreadPost.CommentDocument>(
+                        conf.appwriteDatabaseId,
+                        conf.appwriteCollectoinCommentId,
+                        commentId
+                    )
+                )
+            );
+
+            const comments = await Promise.all(promises);
+
+            const newPost: ThreadPost.ThreadWithCommentDocument = {
+                ...post,
+                comments: comments,
+            };
+
+            return newPost;
         } catch (error) {
             console.log("Appwrite service :: getThreadPost() :: " + error);
             return null;
         }
     }
 
-    async updateThreadPost(id: string, thread: ThreadPost.Thread) {
+    async updateThreadPost(id: string, thread: ThreadPost.ThreadWithoutComment) {
         try {
             return await this.databases.updateDocument<ThreadPost.ThreadDocument>(
                 conf.appwriteDatabaseId,
-                conf.appwriteCollectoinId,
+                conf.appwriteCollectoinPostId,
                 id,
                 thread
             );

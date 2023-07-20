@@ -9,7 +9,7 @@ export default function LoginWithGoogle({ type = "login" }: Props) {
     return (
         <button
             type="button"
-            className="relative inline-flex w-full items-center justify-center rounded-md border border-white/20 bg-white/10 px-3.5 py-2.5 font-semibold transition-all duration-200 hover:bg-white/20 focus:outline-none"
+            className="relative inline-flex w-full items-center justify-center rounded-md border border-primary/20 bg-primary/10 px-3.5 py-2.5 font-semibold transition-all duration-200 hover:bg-primary/20 focus:outline-none"
             onClick={() => authService.loginWithGoogle()}
         >
             <span className="mr-2 inline-block">

@@ -4,7 +4,8 @@ declare global {
             NEXT_PUBLIC_APPWRITE_URL: string;
             NEXT_PUBLIC_APPWRITE_PROJECT_ID: string;
             NEXT_PUBLIC_APPWRITE_DATABASE_ID: string;
-            NEXT_PUBLIC_APPWRITE_COLLECTION_ID: string;
+            NEXT_PUBLIC_APPWRITE_COLLECTION_POST_ID: string;
+            NEXT_PUBLIC_APPWRITE_COLLECTION_COMMENT_ID: string;
             NEXT_PUBLIC_APPWRITE_BUCKET_ID: string;
             APPWRITE_API_KEY: string;
             NODE_ENV: "development" | "production";

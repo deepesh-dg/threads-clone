@@ -64,6 +64,8 @@ export class AuthService {
                 if (!res) throw new Error("Invalid Credentials");
 
                 email = res.email;
+            } else {
+                email = credentials.email;
             }
 
             return await this.account.createEmailSession(email, password);

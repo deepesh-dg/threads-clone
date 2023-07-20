@@ -16,9 +16,8 @@ function PageLayout({ children }: { children: React.ReactNode }) {
                 const token = await authService.getToken();
                 const userData = await authService.getCurrentUser();
 
-                if (token && userData) {
-                    dispatch(login({ token, userData }));
-                }
+                if (token && userData) dispatch(login({ token, userData }));
+                else dispatch(logout());
             } else dispatch(logout());
 
             setLoading(false);
@@ -27,7 +26,7 @@ function PageLayout({ children }: { children: React.ReactNode }) {
         checkAuth();
     }, [dispatch]);
 
-    return loading ? <></> : <>{children}</>;
+    return loading ? null : children;
 }
 
 export default PageLayout;

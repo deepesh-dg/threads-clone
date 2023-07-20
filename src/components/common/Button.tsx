@@ -3,7 +3,7 @@ import React from "react";
 
 type Props = {
     className?: string;
-    variant?: "primary" | "dark";
+    variant?: "primary";
     type?: "submit" | "reset" | "button";
     value: string;
     href?: string;
@@ -22,9 +22,6 @@ function Button({ value, type, href, blank = false, className = "", variant = "p
     };
 
     switch (variant) {
-        case "dark":
-            btnProps.className += "bg-dark text-white disabled:bg-dark/80 hover:bg-dark/80";
-            break;
         case "primary":
         default:
             btnProps.className += "bg-primary text-white hover:bg-primary/80 disabled:bg-primary/80";

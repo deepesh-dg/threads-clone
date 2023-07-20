@@ -3,16 +3,16 @@ import { useAppSelector } from "@/state/store";
 import { useRouter } from "next/navigation";
 import React from "react";
 
-const AuthLayout = ({ children }: { children: React.ReactNode }) => {
+const ProtectedRouteLayout = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter();
     const authStatus = useAppSelector((state) => state.auth.status);
 
-    if (authStatus) {
-        router.replace("/");
-        return null;
+    if (!authStatus) {
+        router.push("/login");
+        return <></>;
     }
 
-    return children;
+    return <>{children}</>;
 };
 
-export default AuthLayout;
+export default ProtectedRouteLayout;

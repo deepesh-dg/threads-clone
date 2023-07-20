@@ -14,16 +14,26 @@ const Login = () => {
     const dispatch = useAppDispatch();
 
     const [formData, setFormData] = useState({
-        email: "",
+        id: "",
         password: "",
     });
+
     const [error, setError] = useState("");
 
     const login = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setError("");
 
         try {
-            const session = await authService.login(formData);
+            let session: Account.Session;
+
+            // Check if user entered email or username
+            if (formData.id.includes("@")) {
+                session = await authService.login({ email: formData.id, password: formData.password });
+            } else {
+                session = await authService.login({ username: formData.id, password: formData.password });
+            }
+
             if (session) {
                 const token = await authService.getToken();
                 const userData = await authService.getCurrentUser();
@@ -37,14 +47,14 @@ const Login = () => {
 
     return (
         <div className="flex items-center justify-center w-full">
-            <div className={`mx-auto w-full max-w-lg bg-lightenDark text-white rounded-xl p-10 border border-white/10`}>
+            <div className={`mx-auto w-full max-w-lg rounded-xl p-10 border border-primary/10`}>
                 <div className="mb-2 flex justify-center">
-                    <span className="inline-block w-full max-w-[200px]">
+                    <span className="inline-block w-full max-w-[60px]">
                         <Logo />
                     </span>
                 </div>
                 <h2 className="text-center text-2xl font-bold leading-tight">Sign in to your account</h2>
-                <p className="mt-2 text-center text-base text-white/60">
+                <p className="mt-2 text-center text-base text-primary/60">
                     Don&apos;t have any account?&nbsp;
                     <Link
                         href="/signup"
@@ -57,10 +67,10 @@ const Login = () => {
                 <form onSubmit={login} className="mt-8">
                     <div className="space-y-5">
                         <Input
-                            setValue={(value) => setFormData((prev) => ({ ...prev, email: value }))}
-                            label="Email : "
-                            placeholder="Email Address"
-                            type="email"
+                            setValue={(value) => setFormData((prev) => ({ ...prev, id: value }))}
+                            label="Username or Email Id : "
+                            placeholder="Username or Email"
+                            autoComplete="username"
                             required
                         />
                         <Input
@@ -68,6 +78,7 @@ const Login = () => {
                             label="Password : "
                             type="password"
                             placeholder="Password"
+                            autoComplete="current-password"
                             required
                         />
                         <Button type="submit" value="Sign in" className="w-full" />

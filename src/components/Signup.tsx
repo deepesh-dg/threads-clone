@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import React, { FormEvent, useState } from "react";
 import { login } from "@/state/authSlice";
 import { Button, Input, LoginWithGoogle, Logo } from ".";
+import service from "@/appwrite/config";
 
 const Signup = () => {
     const router = useRouter();
@@ -17,11 +18,13 @@ const Signup = () => {
     });
 
     const [error, setError] = useState("");
+    const [usernameAvailErr, setUsernameAvailErr] = useState("");
 
     const dispatch = useAppDispatch();
 
     const create = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setError("");
 
         try {
             const userData = await authService.createAccount(formData);
@@ -38,14 +41,14 @@ const Signup = () => {
 
     return (
         <div className="flex items-center justify-center">
-            <div className={`mx-auto w-full max-w-lg bg-lightenDark text-white rounded-xl p-10 border border-white/10`}>
+            <div className={`mx-auto w-full max-w-lg rounded-xl p-10 border border-primary/10`}>
                 <div className="mb-2 flex justify-center">
-                    <span className="inline-block w-full max-w-[200px]">
+                    <span className="inline-block w-full max-w-[60px]">
                         <Logo />
                     </span>
                 </div>
                 <h2 className="text-center text-2xl font-bold leading-tight">Sign up to create account</h2>
-                <p className="mt-2 text-center text-base text-white/60">
+                <p className="mt-2 text-center text-base text-primary/60">
                     Already have an account?&nbsp;
                     <Link
                         href="/login"
@@ -74,6 +77,14 @@ const Signup = () => {
                             setValue={(value) => setFormData((prev) => ({ ...prev, username: value }))}
                             label="Username : "
                             placeholder="Username"
+                            errMsg={usernameAvailErr}
+                            onBlur={(e) =>
+                                formData.username &&
+                                authService.isUsernameAvailable(formData.username).then((status) => {
+                                    if (!status) setUsernameAvailErr("Username Not Available");
+                                })
+                            }
+                            onFocus={() => setUsernameAvailErr("")}
                             required
                         />
                         <Input

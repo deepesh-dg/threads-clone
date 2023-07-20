@@ -1,38 +1,50 @@
 import { Models } from "appwrite";
 
 declare global {
+    namespace DB {
+        interface Document extends Models.Document {}
+        interface DocumentList<T extends Document = any> extends Models.DocumentList<T> {}
+    }
+
     namespace ThreadPost {
-        type Comment = {
-            author: string;
+        interface Comment {
+            id: string;
+            authorId: string;
             comment: string;
-        };
+        }
 
-        type Comments = Comment[];
-
-        type Thread = {
-            name: string;
+        interface BaseThread {
             authorId: string;
             message: string;
             likes: string[];
             views: string[];
-            comments: Comments;
             attachment?: string;
-        };
+        }
 
-        type Threads = Thread[];
+        interface ThreadWithoutComment extends BaseThread {
+            comments: string[];
+        }
 
-        type ThreadDocument = Models.Document & Thread;
-        type ThreadDocuments = Models.DocumentList<ThreadDocument>;
+        interface ThreadWithComment extends BaseThread {
+            comments: CommentDocument[];
+        }
+
+        interface CommentDocument extends DB.Document, Comment {}
+        interface ThreadDocument extends DB.Document, ThreadWithoutComment {}
+        interface ThreadWithCommentDocument extends DB.Document, ThreadWithComment {}
+        interface ThreadDocuments extends DB.DocumentList<ThreadDocument> {}
     }
 
     namespace Account {
-        type User = {
+        interface User {
             name: string;
             username: string;
             email: string;
-        };
+        }
 
-        type UserDocument = Models.User<Models.Preferences>;
+        interface UserDocument extends Models.User<Models.Preferences> {}
+
+        interface Session extends Models.Session {}
     }
 }
 
